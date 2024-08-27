@@ -1,8 +1,28 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import { Card } from "../components/ui/card"; // Adjust this import based on your setup
 
 const LoginPage = () => {
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Check if user exists
+      const response = await axios.post('http://localhost:9000/api/auth/login', { email, password });
+      localStorage.setItem('token', response.data.token);
+      alert('Login successful');
+      // Redirect to the home page after successful login
+      window.location.href = '/new-trip';
+    } catch (error) {
+      console.log(error);
+      alert('Login failed');
+    }
+  };
+
   return (
     <div className="flex-1 flex items-center justify-center py-12 lg:grid lg:grid-cols-2 lg:gap-8"
     style={{
@@ -39,6 +59,8 @@ const LoginPage = () => {
               <input
                 type="email"
                 id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 name="email"
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
@@ -52,6 +74,8 @@ const LoginPage = () => {
               <input
                 type="password"
                 id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 name="password"
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
@@ -59,15 +83,13 @@ const LoginPage = () => {
               />
             </div>
             <div className="space-y-4">
-
-                <Link to="/new-trip" className="w-full">
                     <button
                     type="button"
                     className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 mt-4"
+                    onClick={handleSubmit}
                     >
                     Log In
                     </button>
-                </Link>
                 </div>
           </form>
           <p className="mt-6 text-center text-sm text-foreground">

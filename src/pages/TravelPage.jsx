@@ -3,9 +3,11 @@
  * @see https://v0.dev/t/AHcnRx81FwT
  * Documentation: https://v0.dev/docs#integrating-generated-code-into-your-nextjs-app
  */
+import { useRef, useEffect, useState } from "react"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
-
+import { useLocation } from 'react-router-dom'; 
+import { TravelItineraryData } from "../model/TravelItineraryData";
 const attractions = [
     {
       title: "Baga Beach",
@@ -41,68 +43,160 @@ const attractions = [
     },
   ]
   
+
   export default function TravelPage() {
+    const location = useLocation();
+    const [itineraryData, setItineraryData] = useState(null);
+    const [loading, setLoading] = useState(true); // Add loading state
+    const parsedData = useRef("");
+    useEffect(() => {
+      const query = new URLSearchParams(location.search);
+      const data = query.get('data');
+      if (data) {
+        parsedData.current = JSON.parse(decodeURIComponent(data));
+        console.log("this is data .... "+parsedData.current.length);
+        setItineraryData(parsedData.current);
+      }
+      setLoading(false);
+    }, [location.search]);
+
+    const { destinationCountry = '', budget, itinerary } = itineraryData;
+
+    useEffect(() => {
+      if (!itineraryData || !itineraryData.itinerary) {
+        setLoading(true); // Set loading to true if either is null/undefined
+      } else {
+        setLoading(false); // Set loading to false if both are valid
+      }
+    }, [itineraryData, itineraryData?.itinerary]);
+
+    console.log("this is datafadf .... "+itinerary);
+  
+    if (loading) {
+      return <div>Loading...</div>;
+    }
+
+    if (!itineraryData) {
+      return <div>Loading...</div>;
+    }
+    
+  
+    
+
+    // if(itinerary==null || itinerary==undefined){
+    //   return <div>Loading...</div>;
+    // }
+    
+  
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold">Goa Getaway - Day 1</h1>
-            <div className="flex items-center space-x-4 text-muted-foreground">
-              <div>
-                <CalendarIcon className="w-4 h-4 mr-1 inline" />
-                June 15, 2023
-              </div>
-              <div>
-                <SunIcon className="w-4 h-4 mr-1 inline" />
-                Sunny, 32°C
-              </div>
-              <div>
-                <DollarSignIcon className="w-4 h-4 mr-1 inline" />
-                Budget: $150
-              </div>
-            </div>
-          </div>
-          <Button className="flex items-center gap-2">
-            <FlameIcon className="w-4 h-4" />
-            Find more hotels in Goa
-          </Button>
-        </div>
-        <div className="mb-6">
-          <Input placeholder="Search for stay address or hotel name" className="w-full" />
-        </div>
-        <div className="grid gap-6">
-          {attractions.map((attraction, index) => (
-            <div key={index} className="flex items-start gap-4">
-              <img
-                src={attraction.imageUrl}
-                width={120}
-                height={90}
-                alt="Attraction"
-                className="rounded-lg object-cover"
-                style={{ aspectRatio: "120/90", objectFit: "cover" }}
-              />
-              <div className="flex-1">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="font-bold">{attraction.title}</div>
-                  <div className="text-muted-foreground">
-                    <ClockIcon className="w-4 h-4 mr-1 inline" />
-                    {attraction.time}
-                    <span className="mx-2">•</span>
-                    <DollarSignIcon className="w-4 h-4 mr-1 inline" />
-                    {attraction.cost}
+        {itineraryData ? (
+          itineraryData.itinerary.map((dayPlan, dayIndex) => (
+            <div key={dayIndex} className="mb-10">
+              <div className="flex items-center justify-between mb-6">
+                <div className="space-y-1">
+                  <h1 className="text-2xl font-bold">
+                    {destinationCountry.
+                    charAt(0).toUpperCase() +
+                      destinationCountry.slice(1)}{" "}
+                    - Day {dayPlan.day}
+                  </h1>
+                  <div className="flex items-center space-x-4 text-muted-foreground">
+                    <div>
+                      <span className="w-4 h-4 mr-1 inline" />
+                      {dayPlan.date}
+                    </div>
+                    <div>
+                      <span className="w-4 h-4 mr-1 inline" />
+                      Budget: ${budget}
+                    </div>
                   </div>
                 </div>
-                <p className="text-muted-foreground">{attraction.description}</p>
-                <div className="text-muted-foreground">
-                  <CarIcon className="w-4 h-4 mr-1 inline" />
-                  {attraction.transportation}
+                {/* <button className="flex items-center gap-2">
+                  <span className="w-4 h-4" />
+                  Find more hotels in{" "}
+                  {destinationCountry.charAt(0).toUpperCase() +
+                    destinationCountry.slice(1)}
+                </button> */}
+              </div>
+              {/* <div className="mb-6">
+                <input
+                  placeholder="Search for stay address or hotel name"
+                  className="w-full"
+                />
+              </div> */}
+              <div className="grid gap-6">
+                {dayPlan.activities && dayPlan.activities.length > 0 ? (
+                  dayPlan.activities.map((activity, activityIndex) => (
+                    <div key={activityIndex} className="flex items-start gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="font-bold">{activity.activity}</div>
+                          <div className="text-muted-foreground">
+                            <span className="w-4 h-4 mr-1 inline" />
+                            {activity.time}
+                            <span className="mx-2">•</span>
+                            <span className="w-4 h-4 mr-1 inline" />
+                            {activity.cost}
+                          </div>
+                        </div>
+                        <p className="text-muted-foreground">
+                          {activity.location}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div>No activities planned.</div>
+                )}
+              </div>
+              <div className="mt-6">
+                <h2 className="font-bold">Meals</h2>
+                {dayPlan.meals && dayPlan.meals.length > 0 ? (
+                  dayPlan.meals.map((meal, mealIndex) => (
+                    <div key={mealIndex} className="flex items-start gap-4 mt-4">
+                      <div className="flex-1">
+                        <div className="font-bold">{meal.mealType}</div>
+                        <div className="text-muted-foreground">
+                          {meal.restaurant} - {meal.cuisine}
+                        </div>
+                        <div className="text-muted-foreground">
+                          {meal.location}
+                        </div>
+                        <div className="text-muted-foreground">{meal.cost}</div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div>No meals planned.</div>
+                )}
+              </div>
+              <div className="mt-6">
+                <h2 className="font-bold">Accommodation</h2>
+                <div className="flex items-start gap-4 mt-4">
+                  <div className="flex-1">
+                    <div className="font-bold">
+                      {dayPlan.accommodation?.name || "N/A"}
+                    </div>
+                    <div className="text-muted-foreground">
+                      {dayPlan.accommodation?.type || "N/A"}
+                    </div>
+                    <div className="text-muted-foreground">
+                      {dayPlan.accommodation?.location || "N/A"}
+                    </div>
+                    <div className="text-muted-foreground">
+                      {dayPlan.accommodation?.costPerNight || "N/A"} per night
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
+          ))
+        ) : (
+          <div>No itinerary data available.</div>
+        )}
       </div>
-    )
+    );
   }
 
 function CalendarIcon(props) {

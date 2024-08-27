@@ -4,60 +4,118 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import DatePicker from 'react-datepicker';
+import axios from "axios";
 import 'react-datepicker/dist/react-datepicker.css';
-
+import { TravelItinerary } from "../model/ItineraryResponse";
+import { useNavigate } from 'react-router-dom';
 export default function PlannerPage() {
-    const [startDate, setStartDate] = useState(null);
-    const [showDatePicker, setShowDatePicker] = useState(false);
-  
-    const handleDateClick = () => {
-      setShowDatePicker(true);
-    };
-  
-    const handleDateChange = (date) => {
-      setStartDate(date);
-      setShowDatePicker(false);
-    };
-  
-    const [selectedBadges, setSelectedBadges] = useState([]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [destinationPlace, setDestinationPlace] = useState('');
+  const [budget, setBudget] = useState('');
+  const [travelStyle, setTravelStyle] = useState('');
+  const [interestsNew, setInterestsNew] = useState('Nature,Adventure,Famous Landmarks');
+  const [accommodationType, setAccommodationType] = useState('Hotel');
+  const [transportationType, setTransportationType] = useState('Public Transport');
+  const [activityType, setActivityType] = useState('');
+  const [cuisineType, setCuisineType] = useState('');
+  const [tripDuration, setTripDuration] = useState('');
+  const [language, setLanguage] = useState('English');
+  const navigate = useNavigate(); // Hook to navigate
+  const [itinerary, setItinerary] = useState(null);
 
-    const handleBadgeClick = (badge) => {
-        setSelectedBadges((prev) =>
-        prev.includes(badge) ? prev.filter((item) => item !== badge) : [...prev, badge]
-        );
-    };
+  const token = localStorage.getItem('token');
+  console.log('Retrieved Token:', token);
+  const [selectedBadges, setSelectedBadges] = useState([]);
+  const countDays = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
 
-    const [peopleCount, setPeopleCount] = useState(1);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    const increaseCount = (e) => {
-        e.preventDefault();
-        setPeopleCount(prevCount => prevCount + 1);
-    };
+    try {
+      const response = await axios.post(
+        'http://localhost:9000/api/getPlaces',
+        {
+          destinationCountry: destinationPlace,
+          budget,
+          travelStyle,
+          interestsNew,
+          accommodationType,
+          transportationType,
+          activityType,
+          cuisineType,
+          tripDuration,
+          language
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      console.log(response.data); // Display the response or handle it as needed
+      const itineraryData = new TravelItinerary(response.data);
+      setItinerary(itineraryData);
+      console.log(itineraryData.created);
+      console.log(extractJsonString(itineraryData.choices[0].message.content));
+      if(itineraryData){
+        const serializedData = encodeURIComponent(JSON.stringify(extractJsonString(itineraryData.choices[0].message.content)));
+      navigate(`/travel?data=${serializedData}`);
+    }
+    } catch (error) {
+      console.error('Error fetching itinerary:', error);
+    }
+  };
 
-    const decreaseCount = (e) => {
-        e.preventDefault();
-        setPeopleCount(prevCount => Math.max(prevCount - 1, 1)); // Ensure the count doesn't go below 1
-    };
+  const handleBadgeClick = (badge) => {
+    const newSelectedBadges = selectedBadges.includes(badge)
+      ? selectedBadges.filter((item) => item !== badge)
+      : [...selectedBadges, badge];
+    
+    setSelectedBadges(newSelectedBadges);
+    setActivityType(newSelectedBadges.join(', '));
+  };
 
-    const badgeData = [
-        { id: 'kidFriendly', icon: <BabyIcon className="mr-2 h-4 w-4" />, label: 'Kid Friendly' },
-        { id: 'museums', icon: <LibraryIcon className="mr-2 h-4 w-4" />, label: 'Museums' },
-        { id: 'shopping', icon: <ShoppingCartIcon className="mr-2 h-4 w-4" />, label: 'Shopping' },
-        { id: 'historical', icon: <CalendarIcon className="mr-2 h-4 w-4" />, label: 'Historical' },
-        { id: 'outdoorAdventures', icon: <MountainIcon className="mr-2 h-4 w-4" />, label: 'Outdoor Adventures' },
-        { id: 'artCultural', icon: <PaletteIcon className="mr-2 h-4 w-4" />, label: 'Art & Cultural' },
-        { id: 'amusementParks', icon: <RollerCoasterIcon className="mr-2 h-4 w-4" />, label: 'Amusement Parks' },
-      ];
+  const [peopleCount, setPeopleCount] = useState(1);
+
+  const increaseCount = (e) => {
+    e.preventDefault();
+    setPeopleCount(prevCount => prevCount + 1);
+  };
+
+  const decreaseCount = (e) => {
+    e.preventDefault();
+    setPeopleCount(prevCount => Math.max(prevCount - 1, 1)); // Ensure the count doesn't go below 1
+  };
+
+  const badgeData = [
+    { id: 'kidFriendly', icon: <BabyIcon className="mr-2 h-4 w-4" />, label: 'Kid Friendly' },
+    { id: 'museums', icon: <LibraryIcon className="mr-2 h-4 w-4" />, label: 'Museums' },
+    { id: 'shopping', icon: <ShoppingCartIcon className="mr-2 h-4 w-4" />, label: 'Shopping' },
+    { id: 'historical', icon: <CalendarIcon className="mr-2 h-4 w-4" />, label: 'Historical' },
+    { id: 'outdoorAdventures', icon: <MountainIcon className="mr-2 h-4 w-4" />, label: 'Outdoor Adventures' },
+    { id: 'artCultural', icon: <PaletteIcon className="mr-2 h-4 w-4" />, label: 'Art & Cultural' },
+    { id: 'amusementParks', icon: <RollerCoasterIcon className="mr-2 h-4 w-4" />, label: 'Amusement Parks' },
+  ];
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <h1 className="text-2xl font-bold text-center">Plan your next adventure</h1>
-      <form className="w-full max-w-md mt-8 space-y-6">
+      <form onSubmit={handleSubmit} className="w-full max-w-md mt-8 space-y-6">
         <div className="space-y-2">
           <Label htmlFor="city">Where do you want to go?</Label>
-          <Select>
-            <SelectTrigger id="city">
+          <Select
+            id="city"
+            value={destinationPlace}
+            onValueChange={(value) => setDestinationPlace(value)}
+          >
+            <SelectTrigger>
               <SelectValue placeholder="Select a city" />
             </SelectTrigger>
             <SelectContent>
@@ -69,11 +127,21 @@ export default function PlannerPage() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="budget">What's your budget?</Label>
-          <Input id="budget" type="number" placeholder="Enter your budget in $" />
+          <Input
+            id="budget"
+            type="number"
+            placeholder="Enter your budget in $"
+            value={budget}
+            onChange={(e) => setBudget(e.target.value)}
+          />
         </div>
         <div className="space-y-2">
-          <Label>What kind of cuisine do you prefer?</Label>
-          <Select>
+          <Label htmlFor="cuisine">What kind of cuisine do you prefer?</Label>
+          <Select
+            id="cuisine"
+            value={cuisineType}
+            onValueChange={(value) => setCuisineType(value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select cuisine type" />
             </SelectTrigger>
@@ -87,8 +155,12 @@ export default function PlannerPage() {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>What kind of travel style do you prefer?</Label>
-          <Select>
+          <Label htmlFor="travel-style">What kind of travel style do you prefer?</Label>
+          <Select
+            id="travel-style"
+            value={travelStyle}
+            onValueChange={(value) => setTravelStyle(value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select travel style" />
             </SelectTrigger>
@@ -101,47 +173,61 @@ export default function PlannerPage() {
             </SelectContent>
           </Select>
         </div>
-        
+
         <div className="flex flex-col space-y-2">
-        <Label htmlFor="start-date">When do you want to go?</Label>
-        <div className="flex space-x-2">
-            <Input id="start-date" type="date" placeholder="Start Date" />
-            <Input id="end-date" type="date" placeholder="End Date" />
-        </div>
-        {/* Uncomment and use this button as needed
-        <Button variant="destructive">
-            <PlusIcon className="mr-2 h-4 w-4" />
-            Add destination
-        </Button> */}
+          <Label htmlFor="start-date">When do you want to go?</Label>
+          <div className="flex space-x-2">
+            <Input
+              id="start-date"
+              type="date"
+              placeholder="Start Date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <Input
+              id="end-date"
+              type="date"
+              placeholder="End Date"
+              value={endDate}
+              onChange={(e) => {
+                setEndDate(e.target.value);
+                setTripDuration(countDays(startDate, e.target.value));
+              }}
+            />
+          </div>
         </div>
 
-        
         <div className="space-y-2">
-      <Label>Select the kind of activities you want to do</Label>
-      <div className="flex flex-wrap gap-2">
-        {badgeData.map((badge) => (
-          <Badge
-            key={badge.id}
-            variant={selectedBadges.includes(badge.id) ? 'default' : 'secondary'}
-            className={selectedBadges.includes(badge.id) ? 'opacity-100' : 'opacity-50'}
-            onClick={() => handleBadgeClick(badge.id)}
-          >
-            {badge.icon}
-            {badge.label}
-          </Badge>
-        ))}
-      </div>
-    </div>
+          <Label>Select the kind of activities you want to do</Label>
+          <div className="flex flex-wrap gap-2">
+            {badgeData.map((badge) => (
+              <Badge
+                key={badge.id}
+                variant={selectedBadges.includes(badge.id) ? 'default' : 'secondary'}
+                className={selectedBadges.includes(badge.id) ? 'opacity-100' : 'opacity-50'}
+                onClick={() => handleBadgeClick(badge.id)}
+              >
+                {badge.icon}
+                {badge.label}
+              </Badge>
+            ))}
+          </div>
+        </div>
         <div className="space-y-2">
-        <Label htmlFor="people">How many people are going?</Label>
-        <div className="flex items-center space-x-2">
+          <Label htmlFor="people">How many people are going?</Label>
+          <div className="flex items-center space-x-2">
             <Button variant="outline" onClick={decreaseCount}>-</Button>
-            <Input id="people" value={peopleCount} readOnly className="w-12 text-center" />
+            <Input
+              id="people"
+              value={peopleCount}
+              readOnly
+              className="w-12 text-center"
+            />
             <Button variant="outline" onClick={increaseCount}>+</Button>
             <span>Person{peopleCount > 1 ? 's' : ''}</span>
+          </div>
         </div>
-        </div>
-        <Button className="w-full mt-4 bg-green-600 text-white">Create New Trip</Button>
+        <Button type="submit" className="w-full mt-4 bg-green-600 text-white">Create New Trip</Button>
         <p className="mt-4 text-sm text-center text-muted-foreground">
           By clicking Create New Trip, you agree to our{" "}
           <a href="#" className="text-red-500">
@@ -157,6 +243,7 @@ export default function PlannerPage() {
     </div>
   );
 }
+
 
 // SVG Icons as Functional Components
 function BabyIcon(props) {
@@ -202,6 +289,32 @@ function CalendarIcon(props) {
     </svg>
   );
 }
+
+function extractJsonString(inputString) {
+  let startIndex = inputString.indexOf('{');
+  if (startIndex === -1) return null; // No opening brace found
+
+  let endIndex = startIndex;
+  let braceCount = 0;
+
+  for (let i = startIndex; i < inputString.length; i++) {
+    if (inputString[i] === '{') {
+      braceCount++;
+    } else if (inputString[i] === '}') {
+      braceCount--;
+      if (braceCount === 0) {
+        endIndex = i;
+        break;
+      }
+    }
+  }
+
+  if (braceCount !== 0) return null; // Unmatched braces
+
+  return inputString.substring(startIndex, endIndex + 1);
+}
+
+
 
 function LibraryIcon(props) {
   return (
