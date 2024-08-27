@@ -39,7 +39,7 @@ export default function PlannerPage() {
 
     try {
       const response = await axios.post(
-        'http://localhost:9000/api/getPlaces',
+        'https://f2fd-49-37-39-242.ngrok-free.app/getPlaces',
         {
           destinationCountry: destinationPlace,
           budget,

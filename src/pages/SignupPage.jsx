@@ -10,7 +10,7 @@ export default function SignUpPage() {
     const handleSubmit = async (e) => {
       e.preventDefault();
       try {
-        await axios.post('http://localhost:9000/api/auth/signup', { email, password });
+        await axios.post('https://f2fd-49-37-39-242.ngrok-free.app/api/auth/signup', { email, password });
         alert('Signup successful');
       } catch (error) {
         console.log(error);

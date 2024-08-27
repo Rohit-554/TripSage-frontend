@@ -12,7 +12,7 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       // Check if user exists
-      const response = await axios.post('http://localhost:9000/api/auth/login', { email, password });
+      const response = await axios.post('https://f2fd-49-37-39-242.ngrok-free.app/api/auth/login', { email, password });
       localStorage.setItem('token', response.data.token);
       alert('Login successful');
       // Redirect to the home page after successful login
