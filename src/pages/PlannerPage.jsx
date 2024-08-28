@@ -8,6 +8,10 @@ import axios from "axios";
 import 'react-datepicker/dist/react-datepicker.css';
 import { TravelItinerary } from "../model/ItineraryResponse";
 import { useNavigate } from 'react-router-dom';
+import Lottie from "lottie-react";
+import travelLoaderAnimation from "../../public/loading_.json"
+import { Card } from "../components/ui/card";
+
 export default function PlannerPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -23,9 +27,11 @@ export default function PlannerPage() {
   const [language, setLanguage] = useState('English');
   const navigate = useNavigate(); // Hook to navigate
   const [itinerary, setItinerary] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const token = localStorage.getItem('token');
   console.log('Retrieved Token:', token);
+
   const [selectedBadges, setSelectedBadges] = useState([]);
   const countDays = (startDate, endDate) => {
     const start = new Date(startDate);
@@ -36,10 +42,11 @@ export default function PlannerPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loading animation
 
     try {
       const response = await axios.post(
-        'https://f2fd-49-37-39-242.ngrok-free.app/getPlaces',
+        'http://localhost:9000/api/getPlaces',
         {
           destinationCountry: destinationPlace,
           budget,
@@ -59,18 +66,31 @@ export default function PlannerPage() {
           }
         }
       );
-      console.log(response.data); // Display the response or handle it as needed
+      
       const itineraryData = new TravelItinerary(response.data);
       setItinerary(itineraryData);
-      console.log(itineraryData.created);
-      console.log(extractJsonString(itineraryData.choices[0].message.content));
-      if(itineraryData){
+      if (itineraryData) {
         const serializedData = encodeURIComponent(JSON.stringify(extractJsonString(itineraryData.choices[0].message.content)));
-      navigate(`/travel?data=${serializedData}`);
-    }
+        navigate(`/travel?data=${serializedData}`);
+      }
     } catch (error) {
       console.error('Error fetching itinerary:', error);
+    } finally {
+      setLoading(false); // Stop loading animation
     }
+  };
+
+  const LoadingAnimation = () => {
+    return (
+      <div className="flex items-center justify-center">
+        <Lottie
+          animationData={travelLoaderAnimation}
+          loop
+          play
+          className="w-60 h-60" // Adjust size as needed
+        />
+      </div>
+    );
   };
 
   const handleBadgeClick = (badge) => {
@@ -104,130 +124,169 @@ export default function PlannerPage() {
     { id: 'amusementParks', icon: <RollerCoasterIcon className="mr-2 h-4 w-4" />, label: 'Amusement Parks' },
   ];
 
+  const imageUri = "data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' version='1.1' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:svgjs='http://svgjs.dev/svgjs' width='1432' height='560' preserveAspectRatio='none' viewBox='0 0 1432 560'%3e%3cg mask='url(%26quot%3b%23SvgjsMask1041%26quot%3b)' fill='none'%3e%3cpath d='M1036.419%2c411.391C1070.158%2c410.491%2c1102.687%2c398.596%2c1121.67%2c370.689C1143.468%2c338.643%2c1156.188%2c297.071%2c1137.142%2c263.317C1117.864%2c229.153%2c1075.621%2c218.186%2c1036.419%2c219.603C999.918%2c220.923%2c966.357%2c238.851%2c947.566%2c270.171C928.195%2c302.457%2c922.861%2c343.587%2c942.912%2c375.455C961.971%2c405.747%2c1000.643%2c412.345%2c1036.419%2c411.391' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float1'%3e%3c/path%3e%3cpath d='M799.5394756077759-50.329848635791166L656.6028458657114-22.545782359425058 684.3869121420776 120.39084738263941 827.3235418841421 92.6067811062733z' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float3'%3e%3c/path%3e%3cpath d='M1012.016%2c288.68C1055.552%2c289.318%2c1096.036%2c266.887%2c1118.658%2c229.684C1142.222%2c190.931%2c1146.549%2c142.792%2c1124.986%2c102.891C1102.364%2c61.031%2c1059.598%2c32.174%2c1012.016%2c32.352C964.712%2c32.529%2c922.379%2c61.791%2c900.498%2c103.73C880.118%2c142.793%2c887.902%2c188.904%2c910.653%2c226.636C932.577%2c262.997%2c969.562%2c288.058%2c1012.016%2c288.68' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float3'%3e%3c/path%3e%3cpath d='M1149.21 451.07 a148.67 148.67 0 1 0 297.34 0 a148.67 148.67 0 1 0 -297.34 0z' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float3'%3e%3c/path%3e%3cpath d='M930.63 421.68 a98.51 98.51 0 1 0 197.02 0 a98.51 98.51 0 1 0 -197.02 0z' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float3'%3e%3c/path%3e%3cpath d='M423.28 378.73 a144.24 144.24 0 1 0 288.48 0 a144.24 144.24 0 1 0 -288.48 0z' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float3'%3e%3c/path%3e%3cpath d='M471.844%2c102.833C502.693%2c102.139%2c525.213%2c76.214%2c539.118%2c48.667C551.53%2c24.077%2c550.621%2c-3.892%2c538.101%2c-28.427C524.144%2c-55.778%2c502.55%2c-83.262%2c471.844%2c-83.171C441.235%2c-83.08%2c420.786%2c-54.982%2c406.267%2c-28.035C392.681%2c-2.82%2c386.283%2c26.21%2c399.114%2c51.817C413.333%2c80.193%2c440.113%2c103.547%2c471.844%2c102.833' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float3'%3e%3c/path%3e%3cpath d='M964.6787919463916 279.831816178311L823.2064433007587 277.2275376204228 881.2753973183487 386.4393562562836z' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float3'%3e%3c/path%3e%3cpath d='M28.58 71.96 a170.94 170.94 0 1 0 341.88 0 a170.94 170.94 0 1 0 -341.88 0z' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float3'%3e%3c/path%3e%3cpath d='M704.61 501.11 a138.59 138.59 0 1 0 277.18 0 a138.59 138.59 0 1 0 -277.18 0z' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float1'%3e%3c/path%3e%3cpath d='M207.418%2c730.765C264.404%2c730.842%2c303.23%2c679.872%2c331.284%2c630.27C358.77%2c581.672%2c376.41%2c525.506%2c351.871%2c475.356C324.441%2c419.297%2c269.826%2c376.611%2c207.418%2c377.125C145.72%2c377.633%2c94.072%2c422.245%2c67.027%2c477.702C43.037%2c526.895%2c57.578%2c582.077%2c84.129%2c629.937C111.733%2c679.694%2c150.517%2c730.688%2c207.418%2c730.765' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float1'%3e%3c/path%3e%3cpath d='M94.93253815230075 268.9065557899094L100.07435248133744 121.66425832988952-47.167944978682456 116.52244400085283-52.30975930771915 263.7647414608727z' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float3'%3e%3c/path%3e%3cpath d='M601.709%2c263.803C634.236%2c262.191%2c660.203%2c239.141%2c675.629%2c210.459C690.17%2c183.422%2c691.142%2c151.579%2c676.61%2c124.537C661.225%2c95.908%2c634.206%2c73.444%2c601.709%2c72.907C568.39%2c72.356%2c539.602%2c93.452%2c522.391%2c121.987C504.519%2c151.618%2c497.021%2c188.271%2c513.912%2c218.471C531.144%2c249.28%2c566.451%2c265.55%2c601.709%2c263.803' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float1'%3e%3c/path%3e%3cpath d='M1022.0359496170752 381.229275538853L1076.8440429847142 484.30830725054443 1179.9230746964056 429.5002138829054 1125.1149813287666 326.421182171214z' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float1'%3e%3c/path%3e%3cpath d='M1160.59 146.11 a168.9 168.9 0 1 0 337.8 0 a168.9 168.9 0 1 0 -337.8 0z' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float2'%3e%3c/path%3e%3cpath d='M550.0073098915153-13.317292108267978L477.497664873276 43.33345132758682 606.6580533273701 59.19235290997136z' fill='rgba(28%2c 83%2c 142%2c 0.4)' class='triangle-float3'%3e%3c/path%3e%3c/g%3e%3cdefs%3e%3cmask id='SvgjsMask1041'%3e%3crect width='1432' height='560' fill='white'%3e%3c/rect%3e%3c/mask%3e%3cstyle%3e %40keyframes float1 %7b 0%25%7btransform: translate(0%2c 0)%7d 50%25%7btransform: translate(-10px%2c 0)%7d 100%25%7btransform: translate(0%2c 0)%7d %7d .triangle-float1 %7b animation: float1 5s infinite%3b %7d %40keyframes float2 %7b 0%25%7btransform: translate(0%2c 0)%7d 50%25%7btransform: translate(-5px%2c -5px)%7d 100%25%7btransform: translate(0%2c 0)%7d %7d .triangle-float2 %7b animation: float2 4s infinite%3b %7d %40keyframes float3 %7b 0%25%7btransform: translate(0%2c 0)%7d 50%25%7btransform: translate(0%2c -10px)%7d 100%25%7btransform: translate(0%2c 0)%7d %7d .triangle-float3 %7b animation: float3 6s infinite%3b %7d %3c/style%3e%3c/defs%3e%3c/svg%3e";
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <h1 className="text-2xl font-bold text-center">Plan your next adventure</h1>
-      <form onSubmit={handleSubmit} className="w-full max-w-md mt-8 space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="city">Where do you want to go?</Label>
-          <Select
-            id="city"
-            value={destinationPlace}
-            onValueChange={(value) => setDestinationPlace(value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select a city" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="new-york">New York</SelectItem>
-              <SelectItem value="los-angeles">Los Angeles</SelectItem>
-              <SelectItem value="chicago">Chicago</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="budget">What's your budget?</Label>
-          <Input
-            id="budget"
-            type="number"
-            placeholder="Enter your budget in $"
-            value={budget}
-            onChange={(e) => setBudget(e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="cuisine">What kind of cuisine do you prefer?</Label>
-          <Select
-            id="cuisine"
-            value={cuisineType}
-            onValueChange={(value) => setCuisineType(value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select cuisine type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="american">American</SelectItem>
-              <SelectItem value="italian">Italian</SelectItem>
-              <SelectItem value="asian">Asian</SelectItem>
-              <SelectItem value="mexican">Mexican</SelectItem>
-              <SelectItem value="vegetarian">Vegetarian</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="travel-style">What kind of travel style do you prefer?</Label>
-          <Select
-            id="travel-style"
-            value={travelStyle}
-            onValueChange={(value) => setTravelStyle(value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select travel style" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="adventure">Adventure</SelectItem>
-              <SelectItem value="relaxation">Relaxation</SelectItem>
-              <SelectItem value="cultural">Cultural</SelectItem>
-              <SelectItem value="family">Family</SelectItem>
-              <SelectItem value="solo">Solo</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-col space-y-2">
-          <Label htmlFor="start-date">When do you want to go?</Label>
-          <div className="flex space-x-2">
-            <Input
-              id="start-date"
-              type="date"
-              placeholder="Start Date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-            <Input
-              id="end-date"
-              type="date"
-              placeholder="End Date"
-              value={endDate}
-              onChange={(e) => {
-                setEndDate(e.target.value);
-                setTripDuration(countDays(startDate, e.target.value));
-              }}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Select the kind of activities you want to do</Label>
-          <div className="flex flex-wrap gap-2">
-            {badgeData.map((badge) => (
-              <Badge
-                key={badge.id}
-                variant={selectedBadges.includes(badge.id) ? 'default' : 'secondary'}
-                className={selectedBadges.includes(badge.id) ? 'opacity-100' : 'opacity-50'}
-                onClick={() => handleBadgeClick(badge.id)}
+    <div className="flex flex-col items-center justify-center min-h-screen p-4"
+      style={{
+        backgroundImage: `url(../../public/bg1.svg)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
+      <h1 className="text-2xl font-bold text-center mb-4">Plan your next adventure</h1>
+      <Card className="relative w-full max-w-3xl p-6 bg-white bg-opacity-100">
+        <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-6">
+          <div className="flex-1 space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="city">Where do you want to go?</Label>
+              <Select
+                id="city"
+                value={destinationPlace}
+                onValueChange={(value) => setDestinationPlace(value)}
               >
-                {badge.icon}
-                {badge.label}
-              </Badge>
-            ))}
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a city" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="delhi">Delhi</SelectItem>
+                  <SelectItem value="mumbai">Mumbai</SelectItem>
+                  <SelectItem value="bangalore">Bangalore</SelectItem>
+                  <SelectItem value="goa">Goa</SelectItem>
+                  <SelectItem value="paris">Paris</SelectItem>
+                  <SelectItem value="london">London</SelectItem>
+                  <SelectItem value="Punjab">Punjab</SelectItem>
+                  <SelectItem value="new-york">New York</SelectItem>
+                  <SelectItem value="los-angeles">Los Angeles</SelectItem>
+                  <SelectItem value="chicago">Chicago</SelectItem>
+                  <SelectItem value="san-francisco">San Francisco</SelectItem>
+                  <SelectItem value="seattle">Seattle</SelectItem>
+                  <SelectItem value="miami">Miami</SelectItem>
+                  <SelectItem value="las-vegas">Las Vegas</SelectItem>
+                  <SelectItem value="orlando">Orlando</SelectItem>
+                  <SelectItem value="hawaii">Hawaii</SelectItem>
+                  <SelectItem value="tokyo">Tokyo</SelectItem>
+                  <SelectItem value="kyoto">Kyoto</SelectItem>
+                  <SelectItem value="osaka">Osaka</SelectItem>
+                  <SelectItem value="nara">Nara</SelectItem>
+                  <SelectItem value="hokkaido">Hokkaido</SelectItem>
+                  <SelectItem value="okinawa">Okinawa</SelectItem>
+                  <SelectItem value="seoul">Seoul</SelectItem>
+                  <SelectItem value="busan">Busan</SelectItem>
+                  <SelectItem value="jeju">Jeju</SelectItem>
+                  <SelectItem value="jeonju">Jeonju</SelectItem>
+                  <SelectItem value="gangneung">Gangneung</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="budget">What's your budget?</Label>
+              <Input
+                id="budget"
+                type="number"
+                placeholder="Enter your budget in $"
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="cuisine">What kind of cuisine do you prefer?</Label>
+              <Select
+                id="cuisine"
+                value={cuisineType}
+                onValueChange={(value) => setCuisineType(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select cuisine type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="american">American</SelectItem>
+                  <SelectItem value="italian">Italian</SelectItem>
+                  <SelectItem value="asian">Asian</SelectItem>
+                  <SelectItem value="mexican">Mexican</SelectItem>
+                  <SelectItem value="vegetarian">Vegetarian</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="travel-style">What kind of travel style do you prefer?</Label>
+              <Select
+                id="travel-style"
+                value={travelStyle}
+                onValueChange={(value) => setTravelStyle(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select travel style" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="adventure">Adventure</SelectItem>
+                  <SelectItem value="relaxation">Relaxation</SelectItem>
+                  <SelectItem value="cultural">Cultural</SelectItem>
+                  <SelectItem value="family">Family</SelectItem>
+                  <SelectItem value="solo">Solo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Select the kind of activities you want to do</Label>
+              <div className="flex flex-wrap gap-2">
+                {badgeData.map((badge) => (
+                  <Badge
+                    key={badge.id}
+                    variant={selectedBadges.includes(badge.id) ? 'default' : 'secondary'}
+                    className={selectedBadges.includes(badge.id) ? 'opacity-100' : 'opacity-50'}
+                    onClick={() => handleBadgeClick(badge.id)}
+                  >
+                    {badge.icon}
+                    {badge.label}
+                  </Badge>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="people">How many people are going?</Label>
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" onClick={decreaseCount}>-</Button>
-            <Input
-              id="people"
-              value={peopleCount}
-              readOnly
-              className="w-12 text-center"
-            />
-            <Button variant="outline" onClick={increaseCount}>+</Button>
-            <span>Person{peopleCount > 1 ? 's' : ''}</span>
+          <div className="flex-1 space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="start-date">When do you want to go?</Label>
+              <div className="flex space-x-2">
+                <Input
+                  id="start-date"
+                  type="date"
+                  placeholder="Start Date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+                <Input
+                  id="end-date"
+                  type="date"
+                  placeholder="End Date"
+                  value={endDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                    setTripDuration(countDays(startDate, e.target.value));
+                  }}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="people">How many people are going?</Label>
+              <div className="flex items-center space-x-2">
+                <Button variant="outline" onClick={decreaseCount}>-</Button>
+                <Input
+                  id="people"
+                  value={peopleCount}
+                  readOnly
+                  className="w-12 text-center"
+                />
+                <Button variant="outline" onClick={increaseCount}>+</Button>
+                <span>Person{peopleCount > 1 ? 's' : ''}</span>
+              </div>
+            </div>
+            {/* Empty div to take up vertical space */}
+            <div className="flex-1"></div>
           </div>
-        </div>
-        <Button type="submit" className="w-full mt-4 bg-green-600 text-white">Create New Trip</Button>
+        </form>
+        <Button type="submit" className="w-full bg-green-600 text-white mt-6" onClick={handleSubmit}>Create New Trip</Button>
         <p className="mt-4 text-sm text-center text-muted-foreground">
           By clicking Create New Trip, you agree to our{" "}
           <a href="#" className="text-red-500">
@@ -239,9 +298,16 @@ export default function PlannerPage() {
           </a>
           .
         </p>
-      </form>
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-60">
+            <LoadingAnimation />
+          </div>
+        )}
+      </Card>
     </div>
   );
+  
+
 }
 
 
