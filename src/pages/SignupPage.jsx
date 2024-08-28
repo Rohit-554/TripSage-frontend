@@ -6,11 +6,11 @@ import { Card } from "../components/ui/card";
 export default function SignUpPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
+    const baseUrl = import.meta.env.VITE_BASE_URL;
     const handleSubmit = async (e) => {
       e.preventDefault();
       try {
-        let response = await axios.post('http://localhost:9000/api/auth/signup', { email, password });
+        let response = await axios.post(`${baseUrl}/auth/signup`, { email, password });
         if(response.data.tempToken!='undefined'){
           localStorage.setItem('token', response.data.token);
           window.location.href = '/new-trip';
@@ -24,7 +24,7 @@ export default function SignUpPage() {
     const handleContinue = async (e) => {
       e.preventDefault();
       try {
-        let response = await axios.post('http://localhost:9000/api/auth/continue', {});
+        let response = await axios.post(`${baseUrl}/auth/continue`, {});
         if(response.data.tempToken!='undefined'){
           localStorage.setItem('token', response.data.tempToken);
           window.location.href = '/new-trip';

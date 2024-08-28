@@ -46,7 +46,7 @@ export default function PlannerPage() {
 
     try {
       const response = await axios.post(
-        'http://localhost:9000/api/getPlaces',
+        `${import.meta.env.VITE_BASE_URL}/getPlaces`,
         {
           destinationCountry: destinationPlace,
           budget,

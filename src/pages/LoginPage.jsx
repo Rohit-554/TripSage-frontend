@@ -12,7 +12,7 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       // Check if user exists
-      const response = await axios.post('http://localhost:9000/api/auth/login', { email, password });
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/auth/login`, { email, password });
       localStorage.setItem('token', response.data.token);
     
       window.location.href = '/new-trip';
