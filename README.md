@@ -33,6 +33,12 @@
 - **Vercel:** Web application hosting with continuous deployment.
 - **npm:** Package management for dependencies.
 
+### Screenshots
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between;"> <img src="https://github.com/user-attachments/assets/fc4ef1a5-be78-4938-8005-a2df88ff4bc6" alt="Screenshot 1" style="width: 48%; margin-bottom: 10px;"> <img src="https://github.com/user-attachments/assets/42d85c6d-6cb3-42c8-9a79-dc309d19cb38" alt="Screenshot 2" style="width: 48%; margin-bottom: 10px;"> <img src="https://github.com/user-attachments/assets/9a3c6a07-9e86-4ac6-9354-65d7e3c2b642" alt="Screenshot 3" style="width: 48%; margin-bottom: 10px;"> <img src="https://github.com/user-attachments/assets/18d662bc-558b-48e3-ad13-08e12b50b750" alt="Screenshot 4" style="width: 48%; margin-bottom: 10px;"> </div>
+
+
+
+
 ## Getting Started
 
 ### Prerequisites
