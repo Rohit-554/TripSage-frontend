@@ -38,7 +38,7 @@ export default function SignUpPage() {
     return (
     <div className="flex flex-col min-h-[100dvh]" 
     style={{
-        backgroundImage: `url(../../public/bg.svg)`,
+        backgroundImage: `url(./bg.svg)`,
         backgroundSize: 'cover', // Adjusts the size of the image
         backgroundPosition: 'center', // Centers the image
         backgroundRepeat: 'no-repeat', // Prevents the image from repeating
@@ -67,7 +67,7 @@ export default function SignUpPage() {
       <div className="flex-1 flex items-center justify-center py-4 lg:grid lg:grid-cols-2 lg:gap-8">
         <div className="hidden lg:block">
           <img
-            src={'../../public/Traveling_2.svg'}
+            src={'./Traveling_2.svg'}
             width="650"
             height="650"
             alt="Sign up"

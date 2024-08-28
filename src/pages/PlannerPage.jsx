@@ -9,7 +9,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { TravelItinerary } from "../model/ItineraryResponse";
 import { useNavigate } from 'react-router-dom';
 import Lottie from "lottie-react";
-import travelLoaderAnimation from "../../public/loading_.json"
+import travelLoaderAnimation from "../assets/loading_.json"
 import { Card } from "../components/ui/card";
 
 export default function PlannerPage() {
@@ -129,7 +129,7 @@ export default function PlannerPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4"
       style={{
-        backgroundImage: `url(../../public/bg1.svg)`,
+        backgroundImage: `url(./bg1.svg)`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

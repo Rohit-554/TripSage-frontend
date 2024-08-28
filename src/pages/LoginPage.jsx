@@ -25,7 +25,7 @@ const LoginPage = () => {
   return (
     <div className="flex-1 flex items-center justify-center py-12 lg:grid lg:grid-cols-2 lg:gap-8"
     style={{
-        backgroundImage: `url(../../public/bg.svg)`,
+        backgroundImage: `url(./bg.svg)`,
         backgroundSize: 'cover', // Adjusts the size of the image
         backgroundPosition: 'center', // Centers the image
         backgroundRepeat: 'no-repeat', // Prevents the image from repeating
@@ -33,7 +33,7 @@ const LoginPage = () => {
     >
       <div className="relative hidden lg:block">
         <img
-          src={'../../public/travel_3.svg'}
+          src={'./travel_3.svg'}
           width="650"
           height="650"
           alt="Login"
