@@ -119,7 +119,7 @@ export  function FeaturesSection() {
         <div className="mx-auto grid max-w-5xl items-center gap-6 py-12 lg:grid-cols-2 lg:gap-12">
           <div className="relative max-w-full max-h-full overflow-hidden rounded-xl">
             <img
-              src="./public/digital_nomad.svg"
+              src="./digital_nomad.svg"
               alt="Image"
               className="w-full h-auto object-contain"
             />
